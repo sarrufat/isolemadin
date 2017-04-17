@@ -32,6 +32,8 @@ libraryDependencies ++= {
 enablePlugins(JettyPlugin)
 
 
+containerPort := 9090
+
 vaadinWebSettings
 
 vaadinThemes := Seq("valo-flatdark")
