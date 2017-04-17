@@ -31,6 +31,6 @@ class Functions extends FlatSpec with Matchers {
 
   "ConfigApp" should "get properties" in {
     val conf = ConfigFactory.load();
-    conf.getString("isolemadin.mongoConnection") should be("mongodb://li518-4.members.linode.com:27017")
+    conf.getString("isolemadin.mongoConnection") should be("mongodb://localhost:27017")
   }
 }
