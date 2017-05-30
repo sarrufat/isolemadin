@@ -94,7 +94,7 @@ class SearchView extends VerticalLayout with Navigator.View {
     col3.renderer = ButtonRenderer( (clickListener:  ClickableRenderer.RendererClickEvent) => {
       val word = clickListener.grid.container.getItem(clickListener.itemId).getProperty("word").value
       word.foreach { w =>
-        val word = w.asInstanceOf[String]
+        val word = w.asInstanceOf[String].toLowerCase()
         navigator.navigateTo(org.isolema.views.IsomorphismView.VIEW + "/" + word)
       }
     })
@@ -110,7 +110,7 @@ class SearchView extends VerticalLayout with Navigator.View {
     add(layout)
     field.textChangeListeners += { event ⇒
       if (event.text.length() > 3) {
-        val result = HashedWordService.getWordLike(event.text)(repo)
+        val result = HashedWordService.getWordLike(event.text.toLowerCase())(repo)
         grid.container.removeAllItems()
         for (res ← result; item ← res) {
           grid.addRow(item.word, item.getPreMidSuf(event.text)(SearchView.renderWord), SearchView.renderOccur(item.word, item.decomposeWordByOccur()), item.isoCount)
