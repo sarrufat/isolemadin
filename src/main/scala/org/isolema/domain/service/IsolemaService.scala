@@ -17,6 +17,7 @@ import org.isolema.domain.model.HWordT
 trait HashedWordService[HW] {
   type HWordOperation[A] = Kleisli[Valid,IsolemaRepository,A]
   def getWordLike(likestr:String) : HWordOperation[List[HW]]
+  def getIsomorphisms(word:String):  HWordOperation[List[HW]]
 }
 
 
@@ -27,6 +28,13 @@ class HashedWordServiceImpl extends HashedWordService[HWordT] {
          case -\/(_) => NonEmptyList("Any result").left
       }
     }
+    def getIsomorphisms(word:String) = kleisli[Valid, IsolemaRepository, List[HWordT]] { (repo: IsolemaRepository) =>
+      repo.getIsomorphisms(word) match {
+        case \/-(rlist) => rlist.right
+         case -\/(_) => NonEmptyList("Any result").left
+      }
+    }
+     
 }
 
 // Singleton implementation

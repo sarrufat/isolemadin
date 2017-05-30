@@ -1,20 +1,24 @@
 package org.isolema.domain.repository
 
-import org.mongodb.scala.MongoClient
-import org.mongodb.scala.MongoDatabase
-import org.mongodb.scala.model.Filters._
-import scalaz._
-import scalaz.\/._
-import scalaz.Scalaz._
 import scala.concurrent.Await
 import scala.concurrent.duration._
-import org.mongodb.scala.ScalaObservable
+
 import org.isolema.domain.model.HWordT
 import org.isolema.domain.model.HashedWord
+import org.isolema.util.HashIsomorphism
+import org.mongodb.scala.MongoClient
+import org.mongodb.scala.MongoDatabase
+import org.mongodb.scala.ScalaObservable
+import org.mongodb.scala.model.Filters._
+
 import com.typesafe.config.ConfigFactory
+
+import scalaz._
+import scalaz.Scalaz._
 
 trait IsolemaRepository {
   def findWordsLike(like: String): \/[NonEmptyList[String], List[HWordT]]
+  def getIsomorphisms(word: String): \/[NonEmptyList[String], List[HWordT]]
 }
 
 object MongoRepository extends IsolemaRepository {
@@ -28,13 +32,17 @@ object MongoRepository extends IsolemaRepository {
 
   def findWordsLike(like: String): \/[NonEmptyList[String], List[HWordT]] = {
     val result = hashIsomorphismsCol.find(regex("saoWord", like))
-    //    result.subscribe(new Observer[Document] {
-    //      override def onNext(result: Document): Unit = {}
-    //      override def onError(e: Throwable): Unit = {}
-    //      override def onComplete(): Unit = {}
-    //    })
     val futureRes = Await.result(result.toFuture(), 20 seconds)
-    val resSeq = futureRes.map { doc =>
+    val resSeq = futureRes.map { doc ⇒
+      HashedWord(doc.getObjectId("_id"), doc.getString("word"), doc.getString("isocode"), doc.getInteger("isoCount"), doc.getString("saoWord"))
+    }
+    resSeq.toList.right
+  }
+  def getIsomorphisms(word: String): \/[NonEmptyList[String], List[HWordT]] = {
+    val code = HashIsomorphism.hashingWord(word)
+    val result = hashIsomorphismsCol.find(equal("isocode", code))
+    val futureRes = Await.result(result.toFuture(), 20 seconds)
+    val resSeq = futureRes.map { doc ⇒
       HashedWord(doc.getObjectId("_id"), doc.getString("word"), doc.getString("isocode"), doc.getInteger("isoCount"), doc.getString("saoWord"))
     }
     resSeq.toList.right

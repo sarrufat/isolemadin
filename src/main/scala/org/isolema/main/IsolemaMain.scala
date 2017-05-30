@@ -10,13 +10,15 @@ import vaadin.scala.server.ScaladinServlet
 import vaadin.scala.Grid.Column
 import vaadin.scala.renderers.HtmlRenderer
 import vaadin.scala.renderers.ButtonRenderer
+import org.isolema.views.IsomorphismView
+import vaadin.scala.renderers.ClickableRenderer
 
 @WebServlet(urlPatterns = Array("/*"))
 class Servlet extends ScaladinServlet(
   ui = classOf[IsolemaMainUI])
 class IsolemaMainUI extends UI(theme = "valo-flatdark", title = "ISOLEMA") {
 
-  val contentLayout = new VerticalLayout { layout =>
+  val contentLayout = new VerticalLayout { layout ⇒
     sizeFull()
     margin = true
   }
@@ -33,6 +35,7 @@ class IsolemaMainUI extends UI(theme = "valo-flatdark", title = "ISOLEMA") {
   override def init(request: ScaladinRequest) {
     val navigator = new Navigator(this, contentLayout) {
       addView(SearchView.VIEW1, new SearchView)
+      addView(IsomorphismView.VIEW, new IsomorphismView)
     }
     navigator_=(navigator)
     content_=(layout)
@@ -45,7 +48,7 @@ class IsolemaMainUI extends UI(theme = "valo-flatdark", title = "ISOLEMA") {
     width = 100 pct;
     height = 25 px;
     val menuBar = new MenuBar {
-      addItem("Buscar", (e: MenuBar.MenuItem) => navigator.navigateTo(SearchView.VIEW1))
+      addItem("Buscar", (e: MenuBar.MenuItem) ⇒ navigator.navigateTo(SearchView.VIEW1))
     }
     addComponent(menuBar)
   }
@@ -57,10 +60,10 @@ object SearchView {
 
   def renderWord(pre: String, mid: String, suf: String): String = (<span>{ pre }<span class="v-label-colored">{ mid }</span>{ suf }</span>).toString()
   def renderOccur(word: String, mask: String): String = {
-    val ret = for ((ch, idx) <- mask.zipWithIndex) yield {
+    val ret = for ((ch, idx) ← mask.zipWithIndex) yield {
       ch match {
-        case '_' => word.charAt(idx).toString()
-        case _   => (<span class="v-label-colored">{ word.charAt(idx) }</span>).toString()
+        case '_' ⇒ word.charAt(idx).toString()
+        case _   ⇒ (<span class="v-label-colored">{ word.charAt(idx) }</span>).toString()
       }
     }
     "<span>" + ret.mkString + "</span>"
@@ -69,7 +72,7 @@ object SearchView {
 
 class SearchView extends VerticalLayout with Navigator.View {
   // val label = Label("Caracteres (>3)")
-
+ var navigator: Navigator = null
   def init() {
     val repo = MongoRepository
     val field = new TextField
@@ -78,7 +81,9 @@ class SearchView extends VerticalLayout with Navigator.View {
     val grid = new Grid
     grid.caption = "Aciertos"
     grid.selectionMode = SelectionMode.None
-    val col1 = grid.addColumn[String]("word")
+    val colId =  grid.addColumn[String]("word")
+    colId.hidden = true
+    val col1 = grid.addColumn[String]("matchWord")
     col1.headerCaption = "Palabra"
     col1.renderer = HtmlRenderer()
     val col2 = grid.addColumn[String]("ocurr")
@@ -86,9 +91,14 @@ class SearchView extends VerticalLayout with Navigator.View {
     col2.renderer = HtmlRenderer()
     val col3 = grid.addColumn[Int]("isoCount")
     col3.headerCaption = "Isomorfismos"
-    col3.renderer = new ButtonRenderer()
-   
-    
+    col3.renderer = ButtonRenderer( (clickListener:  ClickableRenderer.RendererClickEvent) => {
+      val word = clickListener.grid.container.getItem(clickListener.itemId).getProperty("word").value
+      word.foreach { w =>
+        val word = w.asInstanceOf[String]
+        navigator.navigateTo(org.isolema.views.IsomorphismView.VIEW + "/" + word)
+      }
+    })
+
     grid.heightByRows = 11
 
     val layout = new VerticalLayout() {
@@ -98,12 +108,12 @@ class SearchView extends VerticalLayout with Navigator.View {
     }
     layout.margin = true
     add(layout)
-    field.textChangeListeners += { event =>
+    field.textChangeListeners += { event ⇒
       if (event.text.length() > 3) {
         val result = HashedWordService.getWordLike(event.text)(repo)
         grid.container.removeAllItems()
-        for (res <- result; item <- res) {
-          grid.addRow(item.getPreMidSuf(event.text)(SearchView.renderWord), SearchView.renderOccur(item.word, item.decomposeWordByOccur()), item.isoCount)
+        for (res ← result; item ← res) {
+          grid.addRow(item.word, item.getPreMidSuf(event.text)(SearchView.renderWord), SearchView.renderOccur(item.word, item.decomposeWordByOccur()), item.isoCount)
         }
       }
     }
@@ -111,7 +121,7 @@ class SearchView extends VerticalLayout with Navigator.View {
 
   override def enter(event: Navigator.ViewChangeEvent) {
     val viewName = event.viewName.getOrElse("")
-
+    navigator = event.navigator
   }
 
   init()
