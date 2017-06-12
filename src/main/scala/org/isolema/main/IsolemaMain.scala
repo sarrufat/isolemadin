@@ -12,6 +12,7 @@ import vaadin.scala.renderers.HtmlRenderer
 import vaadin.scala.renderers.ButtonRenderer
 import org.isolema.views.IsomorphismView
 import vaadin.scala.renderers.ClickableRenderer
+import org.isolema.views.IntroView
 
 @WebServlet(urlPatterns = Array("/*"))
 class Servlet extends ScaladinServlet(
@@ -36,19 +37,22 @@ class IsolemaMainUI extends UI(theme = "valo-flatdark", title = "ISOLEMA") {
     val navigator = new Navigator(this, contentLayout) {
       addView(SearchView.VIEW1, new SearchView)
       addView(IsomorphismView.VIEW, new IsomorphismView)
+      addView(IntroView.VIEW, new IntroView)
+
     }
     navigator_=(navigator)
     content_=(layout)
     headerLayout.add(buildApplicationMenu(navigator))
     layout.add(headerLayout)
     layout.add(contentLayout, ratio = 1)
-    navigator.navigateTo(SearchView.VIEW1)
+    navigator.navigateTo(IntroView.VIEW)
   }
   private def buildApplicationMenu(navigator: Navigator): HorizontalLayout = new HorizontalLayout {
     width = 100 pct;
     height = 25 px;
     val menuBar = new MenuBar {
       addItem("Buscar", (e: MenuBar.MenuItem) ⇒ navigator.navigateTo(SearchView.VIEW1))
+      addItem("Intro", (e: MenuBar.MenuItem) ⇒ navigator.navigateTo(IntroView.VIEW))
     }
     addComponent(menuBar)
   }
@@ -72,7 +76,7 @@ object SearchView {
 
 class SearchView extends VerticalLayout with Navigator.View {
   // val label = Label("Caracteres (>3)")
- var navigator: Navigator = null
+  var navigator: Navigator = null
   def init() {
     val repo = MongoRepository
     val field = new TextField
@@ -81,7 +85,7 @@ class SearchView extends VerticalLayout with Navigator.View {
     val grid = new Grid
     grid.caption = "Aciertos"
     grid.selectionMode = SelectionMode.None
-    val colId =  grid.addColumn[String]("word")
+    val colId = grid.addColumn[String]("word")
     colId.hidden = true
     val col1 = grid.addColumn[String]("matchWord")
     col1.headerCaption = "Palabra"
@@ -91,9 +95,9 @@ class SearchView extends VerticalLayout with Navigator.View {
     col2.renderer = HtmlRenderer()
     val col3 = grid.addColumn[Int]("isoCount")
     col3.headerCaption = "Isomorfismos"
-    col3.renderer = ButtonRenderer( (clickListener:  ClickableRenderer.RendererClickEvent) => {
+    col3.renderer = ButtonRenderer((clickListener: ClickableRenderer.RendererClickEvent) ⇒ {
       val word = clickListener.grid.container.getItem(clickListener.itemId).getProperty("word").value
-      word.foreach { w =>
+      word.foreach { w ⇒
         val word = w.asInstanceOf[String].toLowerCase()
         navigator.navigateTo(org.isolema.views.IsomorphismView.VIEW + "/" + word)
       }

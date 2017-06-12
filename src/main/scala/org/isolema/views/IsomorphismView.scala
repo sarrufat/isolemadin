@@ -1,17 +1,18 @@
 package org.isolema.views
 
-import vaadin.scala.VerticalLayout
-import vaadin.scala.Navigator
-import vaadin.scala.Button
-import vaadin.scala.ValoTheme
+import org.isolema.domain.HashedWordService
+import org.isolema.domain.repository.MongoRepository
 import org.isolema.main.SearchView
+import org.isolema.util.HashIsomorphism
+
+import vaadin.scala.Button
+import vaadin.scala.Grid
 import vaadin.scala.HorizontalLayout
 import vaadin.scala.Label
-import org.isolema.util.HashIsomorphism
-import vaadin.scala.Grid
-import org.isolema.domain.repository.MongoRepository
-import org.isolema.domain.HashedWordService
+import vaadin.scala.Navigator
 import vaadin.scala.SelectionMode
+import vaadin.scala.ValoTheme
+import vaadin.scala.VerticalLayout
 
 object IsomorphismView {
   val VIEW = "IsomorphismView"
@@ -37,6 +38,7 @@ class IsomorphismView extends VerticalLayout with Navigator.View {
     for (res ← result; item ← res) {
       grid.get.addRow(item.word, HashIsomorphism.decomposeWordByCode(item.word))
     }
+    grid.get.sort("spell", vaadin.scala.SortDirection.Ascending)
   }
 
   private def initial() {
