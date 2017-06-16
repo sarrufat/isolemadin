@@ -1,6 +1,14 @@
 @import "variables";
 @import "../valo/valo";
 
+@import "addons";
+
+
 .valo-flatdark {
    @include valo;
+   
+   .bookBackimage {
+       	background: url("img/5div10.png");
+       	background-repeat: repeat;
+	}
 }
