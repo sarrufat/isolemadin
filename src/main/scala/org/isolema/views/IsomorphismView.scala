@@ -70,6 +70,7 @@ class IsomorphismView extends Panel with Navigator.View {
     layout.addComponent(vhH1)
     layout.addComponent(grid.get)
     layout.addComponent(backB)
+    layout.margin = true
     content = layout
 
   }
