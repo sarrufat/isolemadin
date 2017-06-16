@@ -4,12 +4,15 @@ import vaadin.scala.VerticalLayout
 import vaadin.scala.Navigator
 import vaadin.scala.Label
 import vaadin.scala.ValoTheme
+import vaadin.scala.Embedded
+import vaadin.scala.server.ThemeResource
+import vaadin.scala.Panel
 
 object IntroView {
   val VIEW = "IntroView"
 }
 
-class IntroView extends VerticalLayout with Navigator.View {
+class IntroView extends Panel with Navigator.View {
   val text1 = """   
     <p>Esta es una pequeña aplicación experimental para jugar con los isomorfismos del español.</P>
       <p></p>
@@ -27,8 +30,13 @@ class IntroView extends VerticalLayout with Navigator.View {
     //    println(s"viewName = ${viewName}, parameters = ${event.parameters}")
     // init(event.parameters, event.navigator)
   }
+  caption = "Introducción"
   val label = Label(text1)
   label.contentMode = Label.ContentMode.Html
   label.styleName = ValoTheme.LabelHuge
-  addComponent(label)
+  val layout = new VerticalLayout
+  layout.margin = true
+  layout.addComponent(label)
+  content = layout
+  
 }

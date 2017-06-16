@@ -31,6 +31,7 @@ class IsolemaMainUI extends UI(theme = "valo-flatdark", title = "ISOLEMA") {
   }
   val layout = new VerticalLayout {
     sizeFull()
+    styleName = "bookBackimage";
   }
 
   override def init(request: ScaladinRequest) {
@@ -74,7 +75,7 @@ object SearchView {
   }
 }
 
-class SearchView extends VerticalLayout with Navigator.View {
+class SearchView extends Panel with Navigator.View {
   // val label = Label("Caracteres (>3)")
   var navigator: Navigator = null
   def init() {
@@ -111,7 +112,7 @@ class SearchView extends VerticalLayout with Navigator.View {
       add(grid)
     }
     layout.margin = true
-    add(layout)
+    content = layout
     field.textChangeListeners += { event ⇒
       if (event.text.length() > 3) {
         val result = HashedWordService.getWordLike(event.text.toLowerCase())(repo)
@@ -129,5 +130,6 @@ class SearchView extends VerticalLayout with Navigator.View {
   }
 
   init()
+  caption = "Buscar palabras"
 
 }

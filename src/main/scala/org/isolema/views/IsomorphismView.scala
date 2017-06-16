@@ -13,12 +13,13 @@ import vaadin.scala.Navigator
 import vaadin.scala.SelectionMode
 import vaadin.scala.ValoTheme
 import vaadin.scala.VerticalLayout
+import vaadin.scala.Panel
 
 object IsomorphismView {
   val VIEW = "IsomorphismView"
 }
 
-class IsomorphismView extends VerticalLayout with Navigator.View {
+class IsomorphismView extends Panel with Navigator.View {
   var nv: Option[Navigator] = None
   var capT1: Option[Label] = None
   var grid: Option[Grid] = None
@@ -65,10 +66,14 @@ class IsomorphismView extends VerticalLayout with Navigator.View {
     col1.headerCaption = "Palabra"
     val col2 = grid.get.addColumn[String]("spell")
     col2.headerCaption = "Forma"
-    addComponent(vhH1)
-    addComponent(grid.get)
-    addComponent(backB)
+    val layout = new VerticalLayout
+    layout.addComponent(vhH1)
+    layout.addComponent(grid.get)
+    layout.addComponent(backB)
+    content = layout
+
   }
 
   initial()
+  caption = "Isomorfismos"
 }
