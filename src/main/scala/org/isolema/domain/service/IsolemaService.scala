@@ -16,15 +16,15 @@ import org.isolema.domain.model.HWordT
  */
 trait HashedWordService[HW] {
   type HWordOperation[A] = Kleisli[Valid,IsolemaRepository,A]
-  def getWordLike(likestr:String) : HWordOperation[List[HW]]
+  def getWordLike(likestr:String, withoutOccur: Boolean) : HWordOperation[List[HW]]
   def getIsomorphisms(word:String):  HWordOperation[List[HW]]
 }
 
 
 class HashedWordServiceImpl extends HashedWordService[HWordT] {
-    def getWordLike(likestr:String) = kleisli[Valid, IsolemaRepository, List[HWordT]] { (repo: IsolemaRepository) =>
+    def getWordLike(likestr:String, withoutOccur: Boolean) = kleisli[Valid, IsolemaRepository, List[HWordT]] { (repo: IsolemaRepository) =>
       repo.findWordsLike(likestr) match {
-        case \/-(rlist) => rlist.right
+        case \/-(rlist) => if (!withoutOccur) rlist.right else rlist.filterNot(word => "0123456789:;<".startsWith(word.isocode)).right
          case -\/(_) => NonEmptyList("Any result").left
       }
     }

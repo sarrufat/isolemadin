@@ -80,9 +80,12 @@ class SearchView extends Panel with Navigator.View {
   var navigator: Navigator = null
   def init() {
     val repo = MongoRepository
-    val field = new TextField
-    field.caption_=("Caracteres (>3)")
-    field.immediate = true
+    val searchField = new TextField
+    searchField.caption_=("Caracteres (>3)")
+    searchField.immediate = true
+    val occurCheck = new CheckBox()
+    occurCheck.caption = "Sólo con ocurrencias"
+    occurCheck.value = true
     val grid = new Grid
     grid.caption = "Aciertos"
     grid.selectionMode = SelectionMode.None
@@ -107,20 +110,36 @@ class SearchView extends Panel with Navigator.View {
     grid.heightByRows = 11
 
     val layout = new VerticalLayout() {
+
       sizeFull()
-      add(field)
+      val hlay = new HorizontalLayout() {
+        add(searchField)
+        add(occurCheck)
+        setAlignment(occurCheck, Alignment.BottomCenter)
+        spacing = true
+      }
+      add(hlay)
       add(grid)
     }
     layout.margin = true
     content = layout
-    field.textChangeListeners += { event ⇒
-      if (event.text.length() > 3) {
-        val result = HashedWordService.getWordLike(event.text.toLowerCase())(repo)
-        grid.container.removeAllItems()
-        for (res ← result; item ← res) {
-          grid.addRow(item.word, item.getPreMidSuf(event.text)(SearchView.renderWord), SearchView.renderOccur(item.word, item.decomposeWordByOccur()), item.isoCount)
-        }
+
+    // search funtion
+    def viewAction(text: String, withoutOccur: Boolean) = {
+      val result = HashedWordService.getWordLike(text.toLowerCase(), withoutOccur)(repo)
+      grid.container.removeAllItems()
+      for (res ← result; item ← res) {
+        grid.addRow(item.word, item.getPreMidSuf(text)(SearchView.renderWord), SearchView.renderOccur(item.word, item.decomposeWordByOccur()), item.isoCount)
       }
+    }
+    searchField.textChangeListeners += { event ⇒
+      if (event.text.length() > 3)
+        viewAction(event.text, occurCheck.booleanValue)
+    }
+
+    occurCheck.valueChangeListeners += { event ⇒
+      if (searchField.value.getOrElse("").length() > 3)
+        viewAction(searchField.value.get, occurCheck.booleanValue)
     }
   }
 
