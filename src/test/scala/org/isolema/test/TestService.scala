@@ -7,7 +7,7 @@ import org.isolema.domain.repository.MongoRepository
 
 class TestService extends FlatSpec with Matchers {
   "HashedWordService.getWordLike" should "return proper results" in {
-    val result = org.isolema.domain.HashedWordService.getWordLike("alco")(MongoRepository)
+    val result = org.isolema.domain.HashedWordService.getWordLike("alco", true)(MongoRepository)
     result.isRight should be(true)
   }
 }

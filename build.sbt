@@ -13,6 +13,8 @@ resolvers += Resolver.sonatypeRepo("releases")
 
 resolvers += "Scaladin Snapshots" at "http://henrikerola.github.io/repository/snapshots/"
 
+resolvers += "Vaadin Add-ons" at "http://vaadin.com/nexus/content/repositories/vaadin-addons/"
+
 
 libraryDependencies ++= {
   	Seq(
@@ -24,7 +26,8 @@ libraryDependencies ++= {
   		"com.vaadin" % "vaadin-themes" % "7.5.10",
   		"org.mongodb.scala" %% "mongo-scala-driver" % "2.0.0",
   		"org.scalaz" %% "scalaz-core" % "7.2.10",
-  		"com.typesafe" % "config" % "1.3.1"
+  		"com.typesafe" % "config" % "1.3.1",
+  		"org.vaadin.addon" % "visjs-addon" % "2.0.0.3"
   	)
 }
 

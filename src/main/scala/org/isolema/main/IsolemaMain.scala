@@ -13,12 +13,15 @@ import vaadin.scala.renderers.ButtonRenderer
 import org.isolema.views.IsomorphismView
 import vaadin.scala.renderers.ClickableRenderer
 import org.isolema.views.IntroView
+import org.isolema.views.GroupsView
+import org.isolema.domain.model.HWordT
 
 @WebServlet(urlPatterns = Array("/*"))
 class Servlet extends ScaladinServlet(
   ui = classOf[IsolemaMainUI])
 class IsolemaMainUI extends UI(theme = "valo-flatdark", title = "ISOLEMA") {
 
+  var currentResultData: List[HWordT] = List()
   val contentLayout = new VerticalLayout { layout ⇒
     sizeFull()
     margin = true
@@ -39,7 +42,7 @@ class IsolemaMainUI extends UI(theme = "valo-flatdark", title = "ISOLEMA") {
       addView(SearchView.VIEW1, new SearchView)
       addView(IsomorphismView.VIEW, new IsomorphismView)
       addView(IntroView.VIEW, new IntroView)
-
+      addView(GroupsView.VIEW, new GroupsView)
     }
     navigator_=(navigator)
     content_=(layout)
@@ -123,7 +126,6 @@ class SearchView extends Panel with Navigator.View {
     }
     layout.margin = true
     content = layout
-
     // search funtion
     def viewAction(text: String, withoutOccur: Boolean) = {
       val result = HashedWordService.getWordLike(text.toLowerCase(), withoutOccur)(repo)

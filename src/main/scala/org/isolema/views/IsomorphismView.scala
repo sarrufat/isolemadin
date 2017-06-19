@@ -14,6 +14,7 @@ import vaadin.scala.SelectionMode
 import vaadin.scala.ValoTheme
 import vaadin.scala.VerticalLayout
 import vaadin.scala.Panel
+import org.isolema.main.IsolemaMainUI
 
 object IsomorphismView {
   val VIEW = "IsomorphismView"
@@ -23,6 +24,10 @@ class IsomorphismView extends Panel with Navigator.View {
   var nv: Option[Navigator] = None
   var capT1: Option[Label] = None
   var grid: Option[Grid] = None
+  val groupButt = Button("Ver Grupos")
+  groupButt.clickListeners += { event ⇒
+    nv.get.navigateTo(GroupsView.VIEW)
+  }
   override def enter(event: Navigator.ViewChangeEvent) {
     val viewName = event.viewName.getOrElse("")
     println(s"viewName = ${viewName}, parameters = ${event.parameters}")
@@ -35,6 +40,7 @@ class IsomorphismView extends Panel with Navigator.View {
     capT1.get.caption = s"${word} → ${code}"
     val repo = MongoRepository
     val result = HashedWordService.getIsomorphisms(word)(repo)
+    ui.asInstanceOf[IsolemaMainUI].currentResultData = result.getOrElse(List())
     grid.get.container.removeAllItems()
     for (res ← result; item ← res) {
       grid.get.addRow(item.word, HashIsomorphism.decomposeWordByCode(item.word))
@@ -48,7 +54,6 @@ class IsomorphismView extends Panel with Navigator.View {
       styleName = ValoTheme.ButtonTiny
       clickListeners += { event ⇒
         nv.get.navigateTo(SearchView.VIEW1)
-
       }
     }
     val vhH1 = new HorizontalLayout {
@@ -58,6 +63,8 @@ class IsomorphismView extends Panel with Navigator.View {
       capT1 = Some(cap1)
       cap1.styleName = ValoTheme.LabelHuge
       addComponent(cap1)
+      addComponent(groupButt)
+      spacing = true
     }
     grid = Some(new Grid)
     grid.get.caption = "Isomorfismos"
