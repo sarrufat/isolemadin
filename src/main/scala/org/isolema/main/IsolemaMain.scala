@@ -15,13 +15,16 @@ import vaadin.scala.renderers.ClickableRenderer
 import org.isolema.views.IntroView
 import org.isolema.views.GroupsView
 import org.isolema.domain.model.HWordT
+import org.vaadin.googleanalytics.tracking.GoogleAnalyticsTracker
 
 @WebServlet(urlPatterns = Array("/*"))
 class Servlet extends ScaladinServlet(
   ui = classOf[IsolemaMainUI])
+
 class IsolemaMainUI extends UI(theme = "valo-flatdark", title = "ISOLEMA") {
 
   var currentResultData: List[HWordT] = List()
+
   val contentLayout = new VerticalLayout { layout ⇒
     sizeFull()
     margin = true
@@ -50,6 +53,9 @@ class IsolemaMainUI extends UI(theme = "valo-flatdark", title = "ISOLEMA") {
     layout.add(headerLayout)
     layout.add(contentLayout, ratio = 1)
     navigator.navigateTo(IntroView.VIEW)
+    val tracker = new GoogleAnalyticsTracker("UA-101366775-1", "isolema.website")
+    tracker.extend(p)
+    navigator.p.addViewChangeListener(tracker)
   }
   private def buildApplicationMenu(navigator: Navigator): HorizontalLayout = new HorizontalLayout {
     width = 100 pct;
