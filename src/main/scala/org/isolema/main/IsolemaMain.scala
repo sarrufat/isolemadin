@@ -16,6 +16,8 @@ import org.isolema.views.IntroView
 import org.isolema.views.GroupsView
 import org.isolema.domain.model.HWordT
 import org.vaadin.googleanalytics.tracking.GoogleAnalyticsTracker
+import com.vaadin.navigator.ViewChangeListener
+import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent
 
 @WebServlet(urlPatterns = Array("/*"))
 class Servlet extends ScaladinServlet(
@@ -41,21 +43,24 @@ class IsolemaMainUI extends UI(theme = "valo-flatdark", title = "ISOLEMA") {
   }
 
   override def init(request: ScaladinRequest) {
-    val navigator = new Navigator(this, contentLayout) {
+    val nav = new Navigator(this, contentLayout) {
       addView(SearchView.VIEW1, new SearchView)
       addView(IsomorphismView.VIEW, new IsomorphismView)
       addView(IntroView.VIEW, new IntroView)
       addView(GroupsView.VIEW, new GroupsView)
     }
-    navigator_=(navigator)
-    content_=(layout)
-    headerLayout.add(buildApplicationMenu(navigator))
+    navigator = nav
+    content = layout
+    headerLayout.add(buildApplicationMenu(nav))
     layout.add(headerLayout)
     layout.add(contentLayout, ratio = 1)
-    navigator.navigateTo(IntroView.VIEW)
     val tracker = new GoogleAnalyticsTracker("UA-101366775-1", "isolema.website")
     tracker.extend(p)
-    navigator.p.addViewChangeListener(tracker)
+    // nav.p.addViewChangeListener(tracker)
+    nav.afterViewChangeListeners += { ev =>
+       tracker.afterViewChange( new com.vaadin.navigator.ViewChangeListener.ViewChangeEvent(ev.navigator.p,null, null, ev.viewName.getOrElse(""), ev.parameters))
+    }
+    nav.navigateTo(IntroView.VIEW)
   }
   private def buildApplicationMenu(navigator: Navigator): HorizontalLayout = new HorizontalLayout {
     width = 100 pct;
