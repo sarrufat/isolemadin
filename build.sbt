@@ -27,7 +27,9 @@ libraryDependencies ++= {
   		"org.mongodb.scala" %% "mongo-scala-driver" % "2.0.0",
   		"org.scalaz" %% "scalaz-core" % "7.2.10",
   		"com.typesafe" % "config" % "1.3.1",
-  		"org.vaadin.addon" % "visjs-addon" % "2.0.0.3"
+  		"org.vaadin.addon" % "visjs-addon" % "2.0.0.3",
+  		"org.vaadin.addons" % "googleanalyticstracker" % "2.1.0"
+  		
   	)
 }
 
