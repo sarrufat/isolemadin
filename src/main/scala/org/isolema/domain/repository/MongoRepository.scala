@@ -34,7 +34,7 @@ object MongoRepository extends IsolemaRepository {
     val result = hashIsomorphismsCol.find(regex("saoWord", like))
     val futureRes = Await.result(result.toFuture(), 20 seconds)
     val resSeq = futureRes.map { doc ⇒
-      HashedWord(doc.getObjectId("_id"), doc.getString("word"), doc.getString("isocode"), doc.getInteger("isoCount"), doc.getString("saoWord"))
+      HashedWord(doc.getObjectId("_id"), doc.getString("word"), doc.getString("isocode"), doc.getInteger("isoCount"), doc.getString("saoWord"), doc.getString("form"))
     }
     resSeq.toList.right
   }
@@ -43,7 +43,7 @@ object MongoRepository extends IsolemaRepository {
     val result = hashIsomorphismsCol.find(equal("isocode", code))
     val futureRes = Await.result(result.toFuture(), 20 seconds)
     val resSeq = futureRes.map { doc ⇒
-      HashedWord(doc.getObjectId("_id"), doc.getString("word"), doc.getString("isocode"), doc.getInteger("isoCount"), doc.getString("saoWord"))
+      HashedWord(doc.getObjectId("_id"), doc.getString("word"), doc.getString("isocode"), doc.getInteger("isoCount"), doc.getString("saoWord"),  doc.getString("form"))
     }
     resSeq.toList.right
   }
