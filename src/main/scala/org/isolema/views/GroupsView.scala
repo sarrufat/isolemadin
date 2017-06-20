@@ -15,7 +15,7 @@ object GroupsView {
 
 class GroupsView extends Panel with Navigator.View {
 
-  private def getGroups(data: List[HWordT]) = data.map(item ⇒ (HashIsomorphism.decomposeWordByCode(item.word), item)).groupBy(t ⇒ t._1).map(t ⇒ (t._1 -> t._2.map(_._2)))
+  private def getGroups(data: List[HWordT]) = data.map(item ⇒ (HashIsomorphism.decomposeWordByCode(item.word), item)).sortBy(_._1).groupBy(t ⇒ t._1).map(t ⇒ (t._1 -> t._2.map(_._2)))
 
   var netDia = None: Option[NetworkDiagram]
   val contLayout = new VerticalLayout
@@ -29,10 +29,10 @@ class GroupsView extends Panel with Navigator.View {
       nd.setSizeFull()
       val rootNodes = for {
         (key, items) ← data
-        node = new GNode(key, key, GNode.Shape.box, "root")
+        node = new GNode(s"form_${key}", key, GNode.Shape.box, "root")
       } yield {
         nd.addNode(node)
-        for (item ← items) {
+        for (item ← items.sortBy(_.saoWord)) {
           val cnode = new GNode(item.word, item.word)
           nd.addNode(cnode)
           val edge = new Edge(node.getId, cnode.getId)
