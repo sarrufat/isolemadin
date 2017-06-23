@@ -14,6 +14,10 @@ sealed trait HWordT {
   def isoCount: Int
   // Without spelling accents
   def saoWord: String
+  
+  def form: String
+  
+  def anagram: String
 
   def getPreMidSuf(search: String)(render: (String, String, String) => String): String
 
@@ -27,7 +31,7 @@ sealed trait HWordT {
   }
 }
 
-final case class HashedWord(_id: ObjectId, word: String, isocode: String, isoCount: Int, saoWord: String, form:String) extends HWordT {
+final case class HashedWord(_id: ObjectId, word: String, isocode: String, isoCount: Int, saoWord: String, form:String, anagram:String) extends HWordT {
   def getPreMidSuf(search: String)(render: (String, String, String) => String): String = {
     val idx = saoWord.indexOfSlice(search)
     val idxm = idx + search.length()

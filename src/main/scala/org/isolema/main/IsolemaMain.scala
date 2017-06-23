@@ -63,11 +63,14 @@ class IsolemaMainUI extends UI(theme = "valo-flatdark", title = "ISOLEMA") {
     nav.navigateTo(IntroView.VIEW)
   }
   private def buildApplicationMenu(navigator: Navigator): HorizontalLayout = new HorizontalLayout {
-    width = 100 pct;
-    height = 25 px;
+//    width = 100 pct;
+//    height = 25 px;
+    spacing = true
     val menuBar = new MenuBar {
       addItem("Buscar", (e: MenuBar.MenuItem) ⇒ navigator.navigateTo(SearchView.VIEW1))
+  //    addItem("Grupos", (e: MenuBar.MenuItem) ⇒ {})
       addItem("Intro", (e: MenuBar.MenuItem) ⇒ navigator.navigateTo(IntroView.VIEW))
+      spacing = true
     }
     addComponent(menuBar)
   }
