@@ -1,6 +1,6 @@
 package org.isolema.views
 
-import org.isolema.domain.HashedWordService
+import org.isolema.domain.service.HashedWordService
 import org.isolema.domain.repository.MongoRepository
 import org.isolema.main.SearchView
 import org.isolema.util.HashIsomorphism
