@@ -20,7 +20,7 @@ object HashIsomorphism {
 }
 
 object MapOrtographicAccent {
-  private val mapChar = Map('á' -> 'a', 'é' -> 'e', 'í' -> 'i', 'ó' -> 'o', 'ú' -> 'u')
+  private val mapChar = Map('á' -> 'a', 'é' -> 'e', 'í' -> 'i', 'ó' -> 'o', 'ú' -> 'u', 'ü' -> 'u')
   def mapword(word: String) = word.map { ch =>
     mapChar get ch match {
       case Some(c) => c

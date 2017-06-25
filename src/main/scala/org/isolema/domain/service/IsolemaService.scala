@@ -1,4 +1,4 @@
-package org.isolema.domain
+package org.isolema.domain.service
 
 import scala.util.Try
 import org.bson.types.ObjectId
@@ -9,6 +9,8 @@ import Kleisli._
 import \/._
 import org.isolema.domain.repository.IsolemaRepository
 import org.isolema.domain.model.HWordT
+
+import org.isolema.domain._
 
 
 /*

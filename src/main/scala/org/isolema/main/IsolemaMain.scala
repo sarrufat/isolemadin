@@ -1,7 +1,6 @@
 package org.isolema.main
 
 import org.isolema.domain.repository.MongoRepository
-import org.isolema.domain.HashedWordService
 
 import javax.servlet.annotation.WebServlet
 import vaadin.scala._
@@ -18,6 +17,8 @@ import org.isolema.domain.model.HWordT
 import org.vaadin.googleanalytics.tracking.GoogleAnalyticsTracker
 import com.vaadin.navigator.ViewChangeListener
 import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent
+import org.isolema.domain.service.HashedWordService
+import org.isolema.views.AnagramView
 
 @WebServlet(urlPatterns = Array("/*"))
 class Servlet extends ScaladinServlet(
@@ -48,6 +49,7 @@ class IsolemaMainUI extends UI(theme = "valo-flatdark", title = "ISOLEMA") {
       addView(IsomorphismView.VIEW, new IsomorphismView)
       addView(IntroView.VIEW, new IntroView)
       addView(GroupsView.VIEW, new GroupsView)
+      addView(AnagramView.VIEW, new AnagramView)
     }
     navigator = nav
     content = layout
@@ -68,7 +70,7 @@ class IsolemaMainUI extends UI(theme = "valo-flatdark", title = "ISOLEMA") {
     spacing = true
     val menuBar = new MenuBar {
       addItem("Buscar", (e: MenuBar.MenuItem) ⇒ navigator.navigateTo(SearchView.VIEW1))
-  //    addItem("Grupos", (e: MenuBar.MenuItem) ⇒ {})
+      addItem("Anagramas", (e: MenuBar.MenuItem) ⇒ {navigator.navigateTo(AnagramView.VIEW)})
       addItem("Intro", (e: MenuBar.MenuItem) ⇒ navigator.navigateTo(IntroView.VIEW))
       spacing = true
     }
