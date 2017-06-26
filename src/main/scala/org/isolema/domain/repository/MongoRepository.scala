@@ -15,13 +15,19 @@ import com.typesafe.config.ConfigFactory
 
 import scalaz._
 import scalaz.Scalaz._
+import org.isolema.util.MapOrtographicAccent
+import org.isolema.domain.model.AnagramModel
 
 trait IsolemaRepository {
   def findWordsLike(like: String): \/[NonEmptyList[String], List[HWordT]]
   def getIsomorphisms(word: String): \/[NonEmptyList[String], List[HWordT]]
 }
 
-object MongoRepository extends IsolemaRepository {
+trait AnagramaRepository {
+  def getAnamgramas(): \/[NonEmptyList[String], List[AnagramModel]]
+}
+
+object MongoRepository extends IsolemaRepository with AnagramaRepository {
   private val conf = ConfigFactory.load();
   private val connectionStr = conf.getString("isolemadin.mongoConnection")
   val client: MongoClient = MongoClient(connectionStr)
@@ -30,11 +36,14 @@ object MongoRepository extends IsolemaRepository {
 
   val hashIsomorphismsCol = database.getCollection("hashIsomorphisms")
 
+  val anagramCol = database.getCollection("perfectIsos")
+
   def findWordsLike(like: String): \/[NonEmptyList[String], List[HWordT]] = {
-    val result = hashIsomorphismsCol.find(regex("saoWord", like))
+    val mappedLike = MapOrtographicAccent.mapword(like)
+    val result = hashIsomorphismsCol.find(regex("saoWord", mappedLike))
     val futureRes = Await.result(result.toFuture(), 20 seconds)
     val resSeq = futureRes.map { doc ⇒
-      HashedWord(doc.getObjectId("_id"), doc.getString("word"), doc.getString("isocode"), doc.getInteger("isoCount"), doc.getString("saoWord"))
+      HashedWord(doc.getObjectId("_id"), doc.getString("word"), doc.getString("isocode"), doc.getInteger("isoCount"), doc.getString("saoWord"), doc.getString("form"), doc.getString("anagram"))
     }
     resSeq.toList.right
   }
@@ -43,8 +52,14 @@ object MongoRepository extends IsolemaRepository {
     val result = hashIsomorphismsCol.find(equal("isocode", code))
     val futureRes = Await.result(result.toFuture(), 20 seconds)
     val resSeq = futureRes.map { doc ⇒
-      HashedWord(doc.getObjectId("_id"), doc.getString("word"), doc.getString("isocode"), doc.getInteger("isoCount"), doc.getString("saoWord"))
+      HashedWord(doc.getObjectId("_id"), doc.getString("word"), doc.getString("isocode"), doc.getInteger("isoCount"), doc.getString("saoWord"), doc.getString("form"), doc.getString("anagram"))
     }
     resSeq.toList.right
+  }
+
+  def getAnamgramas(): \/[NonEmptyList[String], List[AnagramModel]] = {
+    val result = anagramCol.find()
+    val futureRes = Await.result(result.toFuture(), 20 seconds)
+    futureRes.map ( AnagramModel(_)).toList.right
   }
 }

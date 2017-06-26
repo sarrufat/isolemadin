@@ -1,7 +1,6 @@
 package org.isolema.main
 
 import org.isolema.domain.repository.MongoRepository
-import org.isolema.domain.HashedWordService
 
 import javax.servlet.annotation.WebServlet
 import vaadin.scala._
@@ -13,11 +12,21 @@ import vaadin.scala.renderers.ButtonRenderer
 import org.isolema.views.IsomorphismView
 import vaadin.scala.renderers.ClickableRenderer
 import org.isolema.views.IntroView
+import org.isolema.views.GroupsView
+import org.isolema.domain.model.HWordT
+import org.vaadin.googleanalytics.tracking.GoogleAnalyticsTracker
+import com.vaadin.navigator.ViewChangeListener
+import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent
+import org.isolema.domain.service.HashedWordService
+import org.isolema.views.AnagramView
 
 @WebServlet(urlPatterns = Array("/*"))
 class Servlet extends ScaladinServlet(
   ui = classOf[IsolemaMainUI])
+
 class IsolemaMainUI extends UI(theme = "valo-flatdark", title = "ISOLEMA") {
+
+  var currentResultData: List[HWordT] = List()
 
   val contentLayout = new VerticalLayout { layout ⇒
     sizeFull()
@@ -35,25 +44,35 @@ class IsolemaMainUI extends UI(theme = "valo-flatdark", title = "ISOLEMA") {
   }
 
   override def init(request: ScaladinRequest) {
-    val navigator = new Navigator(this, contentLayout) {
+    val nav = new Navigator(this, contentLayout) {
       addView(SearchView.VIEW1, new SearchView)
       addView(IsomorphismView.VIEW, new IsomorphismView)
       addView(IntroView.VIEW, new IntroView)
-
+      addView(GroupsView.VIEW, new GroupsView)
+      addView(AnagramView.VIEW, new AnagramView)
     }
-    navigator_=(navigator)
-    content_=(layout)
-    headerLayout.add(buildApplicationMenu(navigator))
+    navigator = nav
+    content = layout
+    headerLayout.add(buildApplicationMenu(nav))
     layout.add(headerLayout)
     layout.add(contentLayout, ratio = 1)
-    navigator.navigateTo(IntroView.VIEW)
+    val tracker = new GoogleAnalyticsTracker("UA-101366775-1", "isolema.website")
+    tracker.extend(p)
+    // nav.p.addViewChangeListener(tracker)
+    nav.afterViewChangeListeners += { ev =>
+       tracker.afterViewChange( new com.vaadin.navigator.ViewChangeListener.ViewChangeEvent(ev.navigator.p,null, null, ev.viewName.getOrElse(""), ev.parameters))
+    }
+    nav.navigateTo(IntroView.VIEW)
   }
   private def buildApplicationMenu(navigator: Navigator): HorizontalLayout = new HorizontalLayout {
-    width = 100 pct;
-    height = 25 px;
+//    width = 100 pct;
+//    height = 25 px;
+    spacing = true
     val menuBar = new MenuBar {
       addItem("Buscar", (e: MenuBar.MenuItem) ⇒ navigator.navigateTo(SearchView.VIEW1))
+      addItem("Anagramas", (e: MenuBar.MenuItem) ⇒ {navigator.navigateTo(AnagramView.VIEW)})
       addItem("Intro", (e: MenuBar.MenuItem) ⇒ navigator.navigateTo(IntroView.VIEW))
+      spacing = true
     }
     addComponent(menuBar)
   }
@@ -80,9 +99,12 @@ class SearchView extends Panel with Navigator.View {
   var navigator: Navigator = null
   def init() {
     val repo = MongoRepository
-    val field = new TextField
-    field.caption_=("Caracteres (>3)")
-    field.immediate = true
+    val searchField = new TextField
+    searchField.caption_=("Caracteres (>3)")
+    searchField.immediate = true
+    val occurCheck = new CheckBox()
+    occurCheck.caption = "Sólo con ocurrencias"
+    occurCheck.value = true
     val grid = new Grid
     grid.caption = "Aciertos"
     grid.selectionMode = SelectionMode.None
@@ -107,20 +129,35 @@ class SearchView extends Panel with Navigator.View {
     grid.heightByRows = 11
 
     val layout = new VerticalLayout() {
+
       sizeFull()
-      add(field)
+      val hlay = new HorizontalLayout() {
+        add(searchField)
+        add(occurCheck)
+        setAlignment(occurCheck, Alignment.BottomCenter)
+        spacing = true
+      }
+      add(hlay)
       add(grid)
     }
     layout.margin = true
     content = layout
-    field.textChangeListeners += { event ⇒
-      if (event.text.length() > 3) {
-        val result = HashedWordService.getWordLike(event.text.toLowerCase())(repo)
-        grid.container.removeAllItems()
-        for (res ← result; item ← res) {
-          grid.addRow(item.word, item.getPreMidSuf(event.text)(SearchView.renderWord), SearchView.renderOccur(item.word, item.decomposeWordByOccur()), item.isoCount)
-        }
+    // search funtion
+    def viewAction(text: String, withoutOccur: Boolean) = {
+      val result = HashedWordService.getWordLike(text.toLowerCase(), withoutOccur)(repo)
+      grid.container.removeAllItems()
+      for (res ← result; item ← res) {
+        grid.addRow(item.word, item.getPreMidSuf(text)(SearchView.renderWord), SearchView.renderOccur(item.word, item.decomposeWordByOccur()), item.isoCount)
       }
+    }
+    searchField.textChangeListeners += { event ⇒
+      if (event.text.length() > 3)
+        viewAction(event.text, occurCheck.booleanValue)
+    }
+
+    occurCheck.valueChangeListeners += { event ⇒
+      if (searchField.value.getOrElse("").length() > 3)
+        viewAction(searchField.value.get, occurCheck.booleanValue)
     }
   }
 

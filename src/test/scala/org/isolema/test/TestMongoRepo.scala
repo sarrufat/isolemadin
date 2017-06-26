@@ -27,5 +27,13 @@ class TestMongoRepo extends FlatSpec with Matchers {
        res should have size 96
      }
    }
+   it should "return 2 matching words" in {
+     val result =  MongoRepository.findWordsLike("romeria")
+     result.isLeft should be (false)
+     result.isRight should be (true)
+     for { res <- result } {
+       res should have size 2
+     }
+   }
    
 }
