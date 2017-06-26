@@ -17,6 +17,8 @@ trait AnagramaElemen {
 trait AnagramModel {
   def _id: ObjectId
   def anagramas: List[AnagramaElemen]
+  def anacode: String
+  def tamano: Int
 }
 
 object AnagramaElemen {
@@ -33,6 +35,8 @@ object AnagramModel {
   def apply(doc: Document): AnagramModel = {
     new AnagramModel {
       val _id = doc.getObjectId("_id")
+      val anacode = doc.getString("anacode")
+      val tamano = doc.getInteger("tamano").toInt
       val anagramas: List[AnagramaElemen] = {
         val option =  doc.get[BsonArray]("words").map ( arr => arr.getValues() ).map {  values => 
           values.map { v =>  AnagramaElemen(v.asDocument())}.toList
