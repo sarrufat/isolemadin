@@ -174,7 +174,7 @@ class SearchView extends Panel with Navigator.View {
       val result = HashedWordService.getWordLike(text.toLowerCase(), withoutOccur)(repo)
       grid.container.removeAllItems()
       for (res ← result; item ← res) {
-        grid.addRow(item.word, item.getPreMidSuf(text)(SearchView.renderWord), SearchView.renderOccur(item.word, item.decomposeWordByOccur()), item.isoCount)
+        grid.addRow(item.word, item.getPreMidSuf(text.toLowerCase)(SearchView.renderWord), SearchView.renderOccur(item.word, item.decomposeWordByOccur()), item.isoCount)
       }
     }
     searchField.textChangeListeners += { event ⇒
