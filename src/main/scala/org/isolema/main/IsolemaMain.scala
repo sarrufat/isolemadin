@@ -39,11 +39,15 @@ class Servlet extends ScaladinServlet(
             }
             override def modifyBootstrapPage(response: BootstrapPageResponse) {
               val head = response.getDocument.head()
+              head.prependElement("meta").attr("http-equiv", "content-language").attr("content", "es");
+
               head.prependElement("meta").attr("name", "og:title").attr("content", "ISOLEMA");
               head.prependElement("meta").attr("name", "og:image").attr("content", "http://isolema.website/VAADIN/themes/valo-flatdark/img/5div10.png");
               head.prependElement("meta").attr("name", "og:description").attr("content", "Buscador de isomorfismos");
               head.prependElement("meta").attr("name", "og:url").attr("content", "http://isolema.website");
-
+              head.prependElement("meta").attr("name", "keywords").attr("content", "isomorfismo, entretenimiento, curisidades, linguistica, sílabas, anagramas");
+              head.prependElement("meta").attr("name", "description").attr("content", "Curiosa aplicación que te permite jugar con los isomorfismos en español. Puede ser útil para los escritores que quieran experimentar con la sonoridad de las palabras. También contiene la lista de los anagramas en español");
+              head.prependElement("meta").attr("name", "title").attr("content", "ISOLEMA");
             }
           })
         }
