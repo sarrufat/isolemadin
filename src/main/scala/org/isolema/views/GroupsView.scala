@@ -23,6 +23,7 @@ class GroupsView extends Panel with Navigator.View {
   private def initNetwork(data: Map[String, List[HWordT]]) = {
     netDia.foreach(n ⇒ contLayout.p.removeComponent(n))
     val opt = new Options
+    opt.getPhysics.getStabilization.setEnabled(false)
     netDia = Some(new NetworkDiagram(opt))
     netDia.foreach { nd ⇒
       contLayout.p.addComponent(nd);

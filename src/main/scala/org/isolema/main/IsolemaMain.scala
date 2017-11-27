@@ -19,10 +19,37 @@ import com.vaadin.navigator.ViewChangeListener
 import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent
 import org.isolema.domain.service.HashedWordService
 import org.isolema.views.AnagramView
+import com.vaadin.server.SessionInitListener
+import com.vaadin.server.SessionInitEvent
+import com.vaadin.server.BootstrapListener
+import com.vaadin.server.BootstrapFragmentResponse
+import com.vaadin.server.BootstrapPageResponse
 
 @WebServlet(urlPatterns = Array("/*"))
 class Servlet extends ScaladinServlet(
-  ui = classOf[IsolemaMainUI])
+  ui = classOf[IsolemaMainUI]) {
+  override def servletInitialized = {
+    super.servletInitialized()
+    getService.addSessionInitListener(
+      new SessionInitListener {
+        override def sessionInit(event: SessionInitEvent) {
+          event.getSession.addBootstrapListener(new BootstrapListener {
+            override def modifyBootstrapFragment(response: BootstrapFragmentResponse) {
+              // DO NOTHING
+            }
+            override def modifyBootstrapPage(response: BootstrapPageResponse) {
+              val head = response.getDocument.head()
+              head.prependElement("meta").attr("name", "og:title").attr("content", "ISOLEMA");
+              head.prependElement("meta").attr("name", "og:image").attr("content", "http://isolema.website/VAADIN/themes/valo-flatdark/img/5div10.png");
+              head.prependElement("meta").attr("name", "og:description").attr("content", "Buscador de isomorfismos");
+              head.prependElement("meta").attr("name", "og:url").attr("content", "http://isolema.website");
+
+            }
+          })
+        }
+      })
+  }
+}
 
 class IsolemaMainUI extends UI(theme = "valo-flatdark", title = "ISOLEMA") {
 
@@ -59,18 +86,18 @@ class IsolemaMainUI extends UI(theme = "valo-flatdark", title = "ISOLEMA") {
     val tracker = new GoogleAnalyticsTracker("UA-101366775-1", "isolema.website")
     tracker.extend(p)
     // nav.p.addViewChangeListener(tracker)
-    nav.afterViewChangeListeners += { ev =>
-       tracker.afterViewChange( new com.vaadin.navigator.ViewChangeListener.ViewChangeEvent(ev.navigator.p,null, null, ev.viewName.getOrElse(""), ev.parameters))
+    nav.afterViewChangeListeners += { ev ⇒
+      tracker.afterViewChange(new com.vaadin.navigator.ViewChangeListener.ViewChangeEvent(ev.navigator.p, null, null, ev.viewName.getOrElse(""), ev.parameters))
     }
     nav.navigateTo(IntroView.VIEW)
   }
   private def buildApplicationMenu(navigator: Navigator): HorizontalLayout = new HorizontalLayout {
-//    width = 100 pct;
-//    height = 25 px;
+    //    width = 100 pct;
+    //    height = 25 px;
     spacing = true
     val menuBar = new MenuBar {
       addItem("Buscar", (e: MenuBar.MenuItem) ⇒ navigator.navigateTo(SearchView.VIEW1))
-      addItem("Anagramas", (e: MenuBar.MenuItem) ⇒ {navigator.navigateTo(AnagramView.VIEW)})
+      addItem("Anagramas", (e: MenuBar.MenuItem) ⇒ { navigator.navigateTo(AnagramView.VIEW) })
       addItem("Intro", (e: MenuBar.MenuItem) ⇒ navigator.navigateTo(IntroView.VIEW))
       spacing = true
     }
