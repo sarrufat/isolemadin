@@ -9,3 +9,4 @@ This application contains a database with more than 87000 words. Each word has a
 
 
 Link to applitation: [https://isolema.info/](https://isolema.info/)
+Link to blog (spanish)  [https://sarrufat.blog/wordpress/isolema-i/](ISOLEMA)
